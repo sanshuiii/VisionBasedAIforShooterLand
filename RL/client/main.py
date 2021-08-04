@@ -6,12 +6,18 @@ import pickle
 from model.custom_model import ACCNNModel
 from cnocr import CnOcr
 
+'''
+hyper parameters
+'''
+LEVEL_UP_BONUS = 10
+
 myocr = CnOcr()
 os.environ["KMP_DUPLICATE_LIB_OK"]="TRUE"
 
 IN_GAME_SIGNAL = False
 WAIT_FOR_INIT_SIGNAL = False
 WIN_SIGNAL = False
+LEVEL_UP_FALG = 0
 
 K = 1.5
 
@@ -37,6 +43,9 @@ def getAction():
     global IN_GAME_SIGNAL
     global WAIT_FOR_INIT_SIGNAL
     global WIN_SIGNAL
+    global LEVEL_UP_BONUS
+    global LEVEL_UP_FALG
+    LEVEL_UP_FALG = 0
     step_num = 0
     re = REWARD()
     re.wait_for_num = 1
@@ -49,7 +58,9 @@ def getAction():
                 with open("data/episode_data.pkl","wb") as f:
                     pickle.dump(episode, f)
                 for i in range(len(episode)-1):
+                    print("start calc %d"%i)
                     r = re.cal_reword(myocr,episode[i][0],episode[i+1][0])
+                    print("calc %d down"%i)
                     episode[i][2] = r
                     episode[i][0] = cv2.resize(img,(128,128))/255.0
                 episode[-1][-1] = True
@@ -71,6 +82,7 @@ def getAction():
             step_num = step_num + 1
             if actionType == 1:
                 print('升级，进入技能选择界面...')
+                LEVEL_UP_FALG = LEVEL_UP_BONUS
                 action = 0
             elif actionType == 2:
                 print('女神的祝福')
@@ -112,7 +124,8 @@ def getAction():
                     action = action[0]
                     p = p[0]
                     v = v[0]
-                    tmp  = [img,action,0,p,v, False]
+                    tmp  = [img,action,LEVEL_UP_FALG,p,v, False]
+                    LEVEL_UP_FALG = 0
                     episode.append(tmp)
 
 def initGame():
@@ -162,6 +175,7 @@ if __name__ == '__main__':
     while True:
         
         epoch_num = epoch_num + 1
+        print("---------round%d----------"%epoch_num)
         os.system('scp root@123.57.173.37:/root/model/model.pt model/')
         with open("model/model.pt","rb") as f:
             weights = pickle.load(f)
@@ -183,4 +197,4 @@ if __name__ == '__main__':
         print("开始发包")
         os.system('scp data/episode_data.pkl root@123.57.173.37:/root/data/0.pkl')
         print("发包完成")
-        print("---------round%d----------"%epoch_num)
+        
