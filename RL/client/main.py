@@ -45,7 +45,6 @@ def getAction():
     global WIN_SIGNAL
     global LEVEL_UP_BONUS
     global LEVEL_UP_FALG
-    LEVEL_UP_FALG = 0
     step_num = 0
     re = REWARD()
     re.wait_for_num = 1
@@ -55,8 +54,6 @@ def getAction():
             if step_num == 0:
                 continue
             else:
-                with open("data/episode_data.pkl","wb") as f:
-                    pickle.dump(episode, f)
                 for i in range(len(episode)-1):
                     print("start calc %d"%i)
                     r = re.cal_reword(myocr,episode[i][0],episode[i+1][0])
@@ -65,6 +62,8 @@ def getAction():
                     episode[i][0] = cv2.resize(img,(128,128))/255.0
                 episode[-1][-1] = True
                 episode[-1][2] = (100 if WIN_SIGNAL else -50)
+                with open("data/episode_data.pkl","wb") as f:
+                    pickle.dump(episode, f)
                 step_num = 0
                 episode = []
                 re.wait_for_num = 1
@@ -91,6 +90,7 @@ def getAction():
                 if actionType == 3:
                     print('复活了')
                     os.system(f'adb shell input tap {350} {900}') # 复活
+                    os.system(f'adb shell input tap {350} {900}') # 取消暂停
                 elif actionType == 4: # dead
                     print("死透了")
                     IN_GAME_SIGNAL = False
@@ -176,6 +176,9 @@ if __name__ == '__main__':
         
         epoch_num = epoch_num + 1
         print("---------round%d----------"%epoch_num)
+
+        os.system('echo ')
+
         os.system('scp root@123.57.173.37:/root/model/model.pt model/')
         with open("model/model.pt","rb") as f:
             weights = pickle.load(f)
