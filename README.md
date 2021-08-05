@@ -12,6 +12,14 @@ conda activate env
 pip install -r requirements.txt
 ```
 
+## File Structure
+
+- 固定规则 PathSearch
+- 模仿学习 BehaviorCloning
+- 强化学习 RL
+  - 数据收集端 client
+  - 模型训练端 server
+
 ## demo
 
 ![image](/docs/demo.gif)
