@@ -106,6 +106,7 @@ class ACModel():
 
         pd = CategoricalPd(self.logits)
         self.action = pd.sample()
+        self.action2 = pd.sample2()
         self.neglogp = pd.neglogp(self.action)
         self.neglogp_a = pd.neglogp(self.a_ph)
         self.entropy = pd.entropy()
@@ -137,7 +138,10 @@ class ACModel():
         self._nodes = list(self._to_assign.values())
 
     def forward(self, states: Any, *args, **kwargs) -> Any:
-        return self.sess.run([self.action, self.vf, self.neglogp], feed_dict={self.x_ph: states})
+        return self.sess.run([self.action, self.vf, self.neglogp, self.logits], feed_dict={self.x_ph: states})
+
+    def forward2(self, states: Any, *args, **kwargs) -> Any:
+        return self.sess.run([self.action2, self.vf, self.neglogp, self.logits], feed_dict={self.x_ph: states})
 
 
 class ACCNNModel(ACModel):
@@ -208,3 +212,6 @@ class CategoricalPd:
     def sample(self):
         u = tf.random_uniform(tf.shape(self.logits), dtype=self.logits.dtype)
         return tf.argmax(self.logits - tf.log(-tf.log(u)), axis=-1)
+
+    def sample2(self):
+        return tf.argmax(self.logits, axis=-1)

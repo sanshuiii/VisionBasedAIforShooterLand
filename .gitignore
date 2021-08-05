@@ -1,4 +1,4 @@
-RL/client/model/model.pt
+RL/client/model/*.pt
 RL/client/data/episode_data.pkl
 RL/client/tmp.png
 *.pyc
